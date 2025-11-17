@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package runchart;
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "GrpcClient";
+
+message DataPoint {
+	google.protobuf.Timestamp timestamp = 1;
+	string part_number = 2;
+	double spec_nominal = 3;
+	double spec_tolerance = 4;
+	double measurement = 5;
+}
+
+// Request for snapshot or monitoring
+message SnapshotRequest {
+  string part_number = 1; // which part we want to monitor
+}
+
+// Summary of uploaded measurements
+message Summary {
+  int32 count = 1;
+  double average = 2;
+}
+
+// Service definition with 4 use cases
+service RunChart {
+  // 1. Simple RPC
+  rpc GetSnapshot(SnapshotRequest) returns (DataPoint);
+
+  // 2. Client-streaming RPC
+  rpc SendMeasurements(stream DataPoint) returns (Summary);
+
+  // 3. Server-streaming RPC
+  rpc Monitor(SnapshotRequest) returns (stream DataPoint);
+
+  // 4. Bi-directional streaming RPC
+  rpc SendAndMonitor(stream DataPoint) returns (stream DataPoint);
+}
+
